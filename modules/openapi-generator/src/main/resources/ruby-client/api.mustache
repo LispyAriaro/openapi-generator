@@ -173,6 +173,18 @@ module {{moduleName}}
 
       # query parameters
       query_params = opts[:query_params] || {}
+
+      allowed_keys = [
+      {{#queryParams}}
+      {{^required}}
+      {{#collectionFormat}}@api_client.build_collection_param({{{paramName}}}, :{{{collectionFormat}}}){{/collectionFormat}}{{^collectionFormat}}:'{{{paramName}}}'{{/collectionFormat}},
+      {{/required}}
+      {{/queryParams}}
+      ]
+
+      extraneous_keys = opts.keys.reject { |k| allowed_keys.include? k }
+      raise ArgumentError.new(extraneous_keys) if extraneous_keys.any?
+
       {{#queryParams}}
       {{#required}}
       query_params[:'{{{baseName}}}'] = {{#collectionFormat}}@api_client.build_collection_param({{{paramName}}}, :{{{collectionFormat}}}){{/collectionFormat}}{{^collectionFormat}}{{{paramName}}}{{/collectionFormat}}
